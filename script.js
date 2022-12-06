@@ -25,7 +25,7 @@ var playerSprite = playerSpriteRight;
 //#endregion
 
 //#region MAP
-var ground = [[50, 400, 150, 500], [150, 500, 250, 600]];
+var ground = [[50, 400, 150, 600], [150, 500, 250, 600]];
 //#endregion
 
 //#region Physics
@@ -64,11 +64,37 @@ function groundDistance(x, y, width) {
             }
         }
         //check if player is on top of it
-        console.log(parseInt(y).toString() + " : " + ground[lowestBlocId][1].toString());
         if(x + width / 2 >= ground[lowestBlocId][0] && x - width / 2 <= ground[lowestBlocId][2] && y - 20 <= ground[lowestBlocId][1]) {
             result = ground[lowestBlocId][1] - y;
         }
         alreadyUsed[lowestBlocId] = true;
+    }
+    return result;
+}
+function ceilDistance(x, y, width) {
+    // stup variables
+    var result = y;
+    var alreadyUsed = [];
+    for(var i = 0; i < ground.length; i++) {
+        alreadyUsed.push(false);
+    }
+    //check every blocs from highest to lowest
+    for(var i = 0; i < ground.length; i++) {
+        var heighestBlocId = 0;
+        var heighestBlocY = canvas.height;
+        for(var bloc = 0; bloc < ground.length; bloc++) {
+            //check if already calculated
+            var isAlreadyUsed = alreadyUsed[bloc];
+            if(ground[bloc][3] < heighestBlocY && !isAlreadyUsed) {
+                heighestBlocY = ground[bloc][3];
+                heighestBlocId = bloc;
+            }
+        }
+        //check if player is under it
+        if(x + width / 2 >= ground[heighestBlocId][0] && x - width / 2 <= ground[heighestBlocId][2] && y + 20 >= ground[heighestBlocId][3]) {
+            result = y - ground[heighestBlocId][3];
+        }
+        alreadyUsed[heighestBlocId] = true;
     }
     return result;
 }
@@ -79,6 +105,8 @@ function loop() {
     requestAnimationFrame(loop);
 
     context.clearRect(0, 0, canvas.width, canvas.height);
+
+    console.log(groundDistance(playerX, playerY - (playerNormalY * playerDistortion / 2), playerNormalX / playerDistortion));
 
     // draw player
     if (inputA) {
@@ -129,7 +157,6 @@ function loop() {
         }
         wasAir = true;
     } else {
-        //console.log("grounded");
         if (wasAir) {
             endendJump = true;
             wasAir = false;
