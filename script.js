@@ -25,7 +25,7 @@ var playerSprite = playerSpriteRight;
 //#endregion
 
 //#region MAP
-var ground = [[50, 400, 150, 600], [150, 500, 250, 600]];
+var ground = [[50, 400, 150, 500], [150, 500, 250, 600]];
 //#endregion
 
 //#region Physics
@@ -106,8 +106,6 @@ function loop() {
 
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    console.log(groundDistance(playerX, playerY - (playerNormalY * playerDistortion / 2), playerNormalX / playerDistortion));
-
     // draw player
     if (inputA) {
         playerSprite = playerSpriteLeft;
@@ -165,7 +163,11 @@ function loop() {
         playerVelocityY = 0
         distortionTarget = 1;
     }
-    playerY += playerVelocityY;
+    if (playerVelocityY < 0 && ceilDistance(playerX, playerY - (playerNormalY * playerDistortion / 2), playerNormalX / playerDistortion) <= 0) {
+        playerVelocityY = 0;
+    } else {
+        playerY += playerVelocityY;
+    }
     //#endregion
 
     //#region Movements
@@ -176,7 +178,6 @@ function loop() {
         playerX += PLAYER_SPEED * (startedJump || endendJump ? 0 : 1);
     }
     //#endregion
-
 }
 
 // inputs
